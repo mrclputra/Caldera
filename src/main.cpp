@@ -1,8 +1,10 @@
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include "App.h"
 
-int main() {
+int main(int argc, char* argv[]) {
 	spdlog::set_pattern("[%H:%M:%S - %t] [%^%l%$] %v");
 	spdlog::info("SPDLOG initialized v{}.{}", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR);
-	return 0;
+
+	App app(argc, argv, 1280, 720, "Caldera");
+	return app.run();
 }
