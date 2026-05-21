@@ -37,6 +37,12 @@ void PointCloud::upload() {
     f->glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Point), reinterpret_cast<void*>(offsetof(Point, color)));
 
     f->glBindVertexArray(0);
+
+    bounding_box.min = bounding_box.max = points[0].position;
+    for (const auto& p : points) {
+        bounding_box.min = glm::min(bounding_box.min, p.position);
+        bounding_box.max = glm::max(bounding_box.max, p.position);
+    }
 }
 
 void PointCloud::render() {

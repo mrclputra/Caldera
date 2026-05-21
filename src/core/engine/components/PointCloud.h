@@ -3,6 +3,7 @@
 #include <QOpenGLFunctions_4_5_Core>
 #include <glm/glm.hpp>
 #include <vector>
+#include "BoundingBox.h"
 
 class PointCloud {
 public:
@@ -21,7 +22,8 @@ public:
     void upload();
     void render();
 
-    float pointSize = 2.0f;
+    float point_size = 4.0f;
+    BoundingBox bounding_box;
 
 private:
     QOpenGLFunctions_4_5_Core* f;

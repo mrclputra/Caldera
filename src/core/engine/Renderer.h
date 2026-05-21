@@ -4,10 +4,11 @@
 
 #include "Scene.h"
 #include "components/Shader.h"
+#include "Gizmos.h"
 
 class Renderer {
 public:
-    explicit Renderer(QOpenGLFunctions_4_5_Core* f, int width, int height);
+    explicit Renderer(QOpenGLFunctions_4_5_Core* f, int w, int h);
 
     void initialize();
     void render(float deltaTime);
@@ -20,6 +21,7 @@ private:
     QOpenGLFunctions_4_5_Core* f;
     Scene scene;
     std::shared_ptr<Shader> shader;
+    Gizmos gizmos;
     std::set<int> held_keys;
     int width, height;
 };

@@ -2,14 +2,16 @@
 #include <Qt>
 #include <spdlog/spdlog.h>
 
+#include "utilities/ModelLoader.h"
+
 Renderer::Renderer(
     QOpenGLFunctions_4_5_Core* f,
-    const int width,
-    const int height
-) {
+    const int w,
+    const int h
+) : gizmos(f) {
     this->f = f;
-    this->width = width;
-    this->height = height;
+    this->width = w;
+    this->height = h;
 }
 
 void Renderer::initialize() {
@@ -19,19 +21,30 @@ void Renderer::initialize() {
         std::string(SHADER_DIR) + "pc.frag"
     );
 
+    auto cloud = ModelLoader::load(f, "D:/datasets/boardwalk_in_the_forest_-_point_cloud/scene.gltf");
+    // auto cloud = ModelLoader::load(f, "D:/datasets/ClaustroVelezBlanco.ply");
+
+    // auto cloud = ModelLoader::load(f, "D:/datasets/ce4c13a6d4fc44318477608e45341e7e.ply");
+    // cloud->transform.rotate(glm::vec3(0.0f, 180.0f, 0.0f));
+
+    cloud->transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
+    if (cloud) scene.addObject(cloud);
+
+    gizmos.initialize();
+
     f->glEnable(GL_PROGRAM_POINT_SIZE);
 
-    scene.camera.position = glm::vec3(0.0f, 0.0f, 3.0f);
+    scene.camera.position = glm::vec3(0.0f, 0.0f, 30.0f);
     scene.camera.setViewport(width, height);
 }
 
-void Renderer::render(float deltaTime) {
-    if (held_keys.count(Qt::Key_W)) scene.camera.moveForward(deltaTime);
-    if (held_keys.count(Qt::Key_S)) scene.camera.moveBackward(deltaTime);
-    if (held_keys.count(Qt::Key_A)) scene.camera.moveLeft(deltaTime);
-    if (held_keys.count(Qt::Key_D)) scene.camera.moveRight(deltaTime);
-    if (held_keys.count(Qt::Key_E)) scene.camera.moveUp(deltaTime);
-    if (held_keys.count(Qt::Key_Q)) scene.camera.moveDown(deltaTime);
+void Renderer::render(float delta_time) {
+    if (held_keys.count(Qt::Key_W)) scene.camera.moveForward(delta_time);
+    if (held_keys.count(Qt::Key_S)) scene.camera.moveBackward(delta_time);
+    if (held_keys.count(Qt::Key_A)) scene.camera.moveLeft(delta_time);
+    if (held_keys.count(Qt::Key_D)) scene.camera.moveRight(delta_time);
+    if (held_keys.count(Qt::Key_E)) scene.camera.moveUp(delta_time);
+    if (held_keys.count(Qt::Key_Q)) scene.camera.moveDown(delta_time);
     scene.camera.update();
 
     glm::mat4 view = scene.camera.getViewMatrix();
@@ -42,18 +55,20 @@ void Renderer::render(float deltaTime) {
     shader->setMat4("proj", proj);
 
     for (const auto& obj : scene.objects) {
-        if (!obj->pointCloud) continue;
-        shader->setMat4("model", obj->transform.getTransformationMatrix());
-        shader->setFloat("pointSize", obj->pointCloud->pointSize);
-        obj->pointCloud->render();
+        if (!obj->point_cloud) continue;
+        glm::mat4 model = obj->transform.getTransformationMatrix();
+        shader->setMat4("model", model);
+        shader->setFloat("pointSize", obj->point_cloud->point_size);
+        obj->point_cloud->render();
+        gizmos.drawBoundingBox(obj->point_cloud->bounding_box, model, view, proj, {1.0f, 1.0f, 1.0f, 1.0f});
     }
 }
 
-void Renderer::resize(int width, int height) {
-    spdlog::info("renderer resize: {},{}", width, height);
-    width = width;
-    height = height;
-    scene.camera.setViewport(width, height);
+void Renderer::resize(int w, int h) {
+    spdlog::info("renderer resize: {},{}", w, h);
+    this->width = w;
+    this->height = h;
+    scene.camera.setViewport(w, h);
 }
 
 void Renderer::onKeyPress(int key) {

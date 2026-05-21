@@ -30,8 +30,8 @@ protected:
 private:
     std::unique_ptr<Renderer> renderer;
     QElapsedTimer timer;
-    QPoint lastMousePos;
-    bool mouseCapture = false;
+    QPoint last_mouse_pos;
+    bool mouse_capture = false;
 };
 
 #endif // VIEWPORTWIDGET_H

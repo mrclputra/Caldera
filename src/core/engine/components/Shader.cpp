@@ -9,13 +9,13 @@
 
 Shader::Shader(
     QOpenGLFunctions_4_5_Core* f,
-    const std::string& vertexPath,
-    const std::string& fragmentPath
+    const std::string& vertex_path,
+    const std::string& fragment_path
 ) {
     this->f = f;
 
-    GLuint vert = compile(GL_VERTEX_SHADER, readFile(vertexPath));
-    GLuint frag = compile(GL_FRAGMENT_SHADER, readFile(fragmentPath));
+    GLuint vert = compile(GL_VERTEX_SHADER, readFile(vertex_path));
+    GLuint frag = compile(GL_FRAGMENT_SHADER, readFile(fragment_path));
 
     program = f->glCreateProgram();
     f->glAttachShader(program, vert);
@@ -25,9 +25,9 @@ Shader::Shader(
     GLint ok = GL_FALSE;
     f->glGetProgramiv(program, GL_LINK_STATUS, &ok);
     if (!ok) {
-        GLchar infoLog[1024];
-        f->glGetProgramInfoLog(program, 1024, nullptr, infoLog);
-        spdlog::error("PROGRAM_LINKING_ERROR: {}", infoLog);
+        GLchar info_log[1024];
+        f->glGetProgramInfoLog(program, 1024, nullptr, info_log);
+        spdlog::error("PROGRAM_LINKING_ERROR: {}", info_log);
         f->glDeleteProgram(program);
         f->glDeleteShader(vert);
         f->glDeleteShader(frag);
@@ -86,9 +86,9 @@ GLuint Shader::compile(GLenum type, const std::string& source) const {
     GLint ok = GL_FALSE;
     f->glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
     if (!ok) {
-        GLchar infoLog[1024];
-        f->glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-        spdlog::error("SHADER_COMPILE_ERROR: {}", infoLog);
+        GLchar info_log[1024];
+        f->glGetShaderInfoLog(shader, 1024, nullptr, info_log);
+        spdlog::error("SHADER_COMPILE_ERROR: {}", info_log);
         f->glDeleteShader(shader);
         return 0;
     }

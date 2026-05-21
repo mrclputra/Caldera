@@ -9,8 +9,8 @@ public:
     Shader() = default;
     Shader(
         QOpenGLFunctions_4_5_Core* f,
-        const std::string& vertexPath,
-        const std::string& fragmentPath
+        const std::string& vertex_path,
+        const std::string& fragment_path
     );
     ~Shader();
 

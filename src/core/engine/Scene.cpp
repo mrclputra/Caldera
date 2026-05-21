@@ -1,6 +1,6 @@
 #include "Scene.h"
 
-void Scene::update(float deltaTime) {
+void Scene::update(float delta_time) {
 
 }
 

@@ -20,13 +20,13 @@ void ViewportWidget::initializeGL() {
 }
 
 void ViewportWidget::paintGL() {
-    float deltaTime = timer.elapsed() / 1000.0f;
+    float delta_time = timer.elapsed() / 1000.0f;
     timer.restart();
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderer->render(deltaTime);
+    renderer->render(delta_time);
 
     update();
 }
@@ -47,25 +47,25 @@ void ViewportWidget::keyReleaseEvent(QKeyEvent* e) {
 }
 
 void ViewportWidget::mouseMoveEvent(QMouseEvent* e) {
-    if (mouseCapture) {
-        QPoint delta = e->pos() - lastMousePos;
+    if (mouse_capture) {
+        QPoint delta = e->pos() - last_mouse_pos;
         renderer->onMouseMove(delta.x(), delta.y());
     }
-    lastMousePos = e->pos();
+    last_mouse_pos = e->pos();
     QOpenGLWidget::mouseMoveEvent(e);
 }
 
 void ViewportWidget::mousePressEvent(QMouseEvent* e) {
     if (e->button() == Qt::RightButton) {
         // capture mouse inputs in the viewport only if right click
-        mouseCapture = true;
-        lastMousePos = e->pos();
+        mouse_capture = true;
+        last_mouse_pos = e->pos();
     }
     QOpenGLWidget::mousePressEvent(e);
 }
 
 void ViewportWidget::mouseReleaseEvent(QMouseEvent* e) {
     if (e->button() == Qt::RightButton)
-        mouseCapture = false;
+        mouse_capture = false;
     QOpenGLWidget::mouseReleaseEvent(e);
 }

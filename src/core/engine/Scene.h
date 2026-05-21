@@ -15,5 +15,5 @@ public:
     void addObject(std::shared_ptr<Object> object);
     void removeObject(const std::shared_ptr<Object> &object);
 
-    void update(float deltaTime);
+    void update(float delta_time);
 };

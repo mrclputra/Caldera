@@ -16,6 +16,16 @@ set(SPDLOG_BUILD_COMPILED ON CACHE BOOL "" FORCE)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/glm)
 
+set(BUILD_SHARED_LIBS                       OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT   OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_PLY_IMPORTER               ON  CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_GLTF_IMPORTER              ON  CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS                      OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS               OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL                          OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX             OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/assimp)
+
 add_library(CalderaCore
         STATIC
         src/core/engine/Renderer.h
@@ -28,8 +38,13 @@ add_library(CalderaCore
         src/core/engine/Scene.h
         src/core/engine/Camera.cpp
         src/core/engine/Camera.h
+        src/core/engine/Gizmos.cpp
+        src/core/engine/Gizmos.h
+        src/core/engine/components/BoundingBox.h
         src/core/engine/components/PointCloud.cpp
         src/core/engine/components/PointCloud.h
+        src/core/utilities/ModelLoader.cpp
+        src/core/utilities/ModelLoader.h
 )
 
 target_link_libraries(CalderaCore
@@ -37,11 +52,13 @@ target_link_libraries(CalderaCore
         spdlog::spdlog
         Qt::OpenGL
         glm::glm
+        assimp
 )
 target_include_directories(CalderaCore
         PUBLIC
         src/core
         external/stb
+        external/assimp/include
 )
 target_compile_definitions(CalderaCore
         PRIVATE
@@ -74,7 +91,6 @@ target_include_directories(CalderaGUI
 qt_add_executable(${PROJECT_NAME}
         MACOSX_BUNDLE
         src/main.cpp
-        src/core/engine/components/Transform.h
 )
 
 set_target_properties(${PROJECT_NAME}

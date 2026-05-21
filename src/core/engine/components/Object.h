@@ -13,5 +13,5 @@ public:
 
     Transform transform;
     std::string name;
-    std::shared_ptr<PointCloud> pointCloud;
+    std::shared_ptr<PointCloud> point_cloud;
 };

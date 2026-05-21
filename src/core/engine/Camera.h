@@ -13,13 +13,13 @@ public:
     float yaw = -90.0f;
     float pitch = 0.0f;
 
-    float sensitivity = 0.09f;
-    float speed = 5.0f;
-    float fov = 36.0f;
+    float sensitivity = 0.10f;
+    float speed = 09.0f;
+    float fov = 32.0f;
 
     Camera(
         glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)
-        // glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f)
+        // glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f) // this would be needed if we implement roll
     );
 
     void update(); // this should be called every frame
@@ -27,7 +27,7 @@ public:
     glm::mat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix() const;
 
-    void rotate(float xOffset, float yOffset);
+    void rotate(float x_offset, float y_offset);
     void moveForward(float delta);
     void moveBackward(float delta);
     void moveRight(float delta);
@@ -39,7 +39,7 @@ public:
     void setViewport(int width, int height);
 
 private:
-    glm::vec3 worldUp;
-    int viewportWidth = 800;
-    int viewportHeight = 600;
+    glm::vec3 world_up;
+    int viewport_width = 800;
+    int viewport_height = 600;
 };
