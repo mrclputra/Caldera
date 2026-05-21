@@ -22,15 +22,16 @@ protected:
     void resizeGL(int w, int h) override;
     
     void keyPressEvent(QKeyEvent* e) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
     void mouseMoveEvent(QMouseEvent * e) override;
     void mousePressEvent(QMouseEvent * e) override;
     void mouseReleaseEvent(QMouseEvent * e) override;
 
 private:
-    std::unique_ptr<Renderer> m_renderer;
-    QElapsedTimer m_timer;
-    QPoint m_lastMousePos;
-    bool m_mouseCapture = false;
+    std::unique_ptr<Renderer> renderer;
+    QElapsedTimer timer;
+    QPoint lastMousePos;
+    bool mouseCapture = false;
 };
 
 #endif // VIEWPORTWIDGET_H

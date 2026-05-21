@@ -9,7 +9,7 @@ public:
     int run();
 
 private:
-    int m_argc;  // QApplication holds a reference to argc, must outlive it
-    QApplication m_qapp;
-    MainWindow m_window;
+    int argc;  // QApplication holds a reference to argc, must outlive it
+    QApplication qapp;
+    MainWindow window;
 };
