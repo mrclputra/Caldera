@@ -1,4 +1,6 @@
-#pragma once
+#ifndef RENDERER_H
+#define RENDERER_H
+
 #include <QOpenGLFunctions_4_5_Core>
 #include <set>
 
@@ -20,8 +22,13 @@ public:
 private:
     QOpenGLFunctions_4_5_Core* f;
     Scene scene;
-    std::shared_ptr<Shader> shader;
     Gizmos gizmos;
+    std::shared_ptr<Shader> shader;
+
     std::set<int> held_keys;
+    float point_size = 5.0f;
+
     int width, height;
 };
+
+#endif // RENDERER_H

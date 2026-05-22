@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHADER_H
+#define SHADER_H
 
 #include <QOpenGLFunctions_4_5_Core>
 #include <glm/glm.hpp>
@@ -16,7 +17,7 @@ public:
 
     void bind();
     void unbind();
-    void setMat4(const std::string &name, const glm::mat4& v) const; // USE GLM DATASTRUCTURES
+    void setMat4(const std::string &name, const glm::mat4& v) const;
     void setMat3(const std::string &name, const glm::mat3& v) const;
     void setMat2(const std::string &name, const glm::mat2& v) const;
     void setVec4(const std::string &name, const glm::vec4& v) const;
@@ -33,3 +34,5 @@ private:
 
     static std::string readFile(const std::string& path);
 };
+
+#endif // SHADER_H

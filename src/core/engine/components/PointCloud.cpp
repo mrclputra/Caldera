@@ -2,8 +2,13 @@
 
 #include <spdlog/spdlog.h>
 
-PointCloud::PointCloud(QOpenGLFunctions_4_5_Core *f, std::vector<Point> points) {
+PointCloud::PointCloud(
+    QOpenGLFunctions_4_5_Core *f,
+    const std::string& name,
+    std::vector<Point> points
+) {
     this->f = f;
+    this->name = name;
     this->points = std::move(points);
     upload();
 }
@@ -38,10 +43,10 @@ void PointCloud::upload() {
 
     f->glBindVertexArray(0);
 
-    bounding_box.min = bounding_box.max = points[0].position;
+    bb_min = bb_max = points[0].position;
     for (const auto& p : points) {
-        bounding_box.min = glm::min(bounding_box.min, p.position);
-        bounding_box.max = glm::max(bounding_box.max, p.position);
+        bb_min = glm::min(bb_min, p.position);
+        bb_max = glm::max(bb_max, p.position);
     }
 }
 

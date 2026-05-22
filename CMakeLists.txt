@@ -32,15 +32,12 @@ add_library(CalderaCore
         src/core/engine/Renderer.cpp
         src/core/engine/components/Shader.h
         src/core/engine/components/Shader.cpp
-        src/core/engine/components/Object.cpp
-        src/core/engine/components/Object.h
         src/core/engine/Scene.cpp
         src/core/engine/Scene.h
         src/core/engine/Camera.cpp
         src/core/engine/Camera.h
         src/core/engine/Gizmos.cpp
         src/core/engine/Gizmos.h
-        src/core/engine/components/BoundingBox.h
         src/core/engine/components/PointCloud.cpp
         src/core/engine/components/PointCloud.h
         src/core/utilities/ModelLoader.cpp

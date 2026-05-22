@@ -1,6 +1,6 @@
-#pragma once
+#ifndef CAMERA_H
+#define CAMERA_H
 
-#include <QOpenGLFunctions_4_5_Core>
 #include "glm/glm.hpp"
 
 static float PIXEL_TO_RAD = 0.01f;
@@ -14,10 +14,10 @@ public:
     float pitch = 0.0f;
 
     float sensitivity = 0.10f;
-    float speed = 09.0f;
+    float speed = 9.0f;
     float fov = 32.0f;
 
-    Camera(
+    explicit Camera(
         glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f)
         // glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f) // this would be needed if we implement roll
     );
@@ -43,3 +43,5 @@ private:
     int viewport_width = 800;
     int viewport_height = 600;
 };
+
+#endif // CAMERA_H

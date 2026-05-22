@@ -1,19 +1,22 @@
-#pragma once
+#ifndef SCENE_H
+#define SCENE_H
+
 #include <memory>
 
 #include "Camera.h"
-#include "components/Object.h"
+#include "components/PointCloud.h"
 
 class Scene {
 public:
     Scene() = default;
     ~Scene() = default;
 
-    std::vector<std::shared_ptr<Object>> objects;
+    std::vector<std::shared_ptr<PointCloud>> point_clouds;
     Camera camera;
 
-    void addObject(std::shared_ptr<Object> object);
-    void removeObject(const std::shared_ptr<Object> &object);
-
-    void update(float delta_time);
+    void addCloud(std::shared_ptr<PointCloud> pc);
+    void removeCloud(const std::shared_ptr<PointCloud> &pc);
+    // void update(float dt);
 };
+
+#endif // SCENE_H

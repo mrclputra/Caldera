@@ -1,11 +1,16 @@
-#pragma once
+#ifndef GIZMOS_H
+#define GIZMOS_H
 
 #include <QOpenGLFunctions_4_5_Core>
 #include <glm/glm.hpp>
 #include <memory>
 
 #include "components/Shader.h"
-#include "components/BoundingBox.h"
+
+struct BoundingBox {
+    glm::vec3 min{0.0f};
+    glm::vec3 max{0.0f};
+};
 
 class Gizmos {
 public:
@@ -27,3 +32,5 @@ private:
     GLuint VAO = 0;
     GLuint VBO = 0;
 };
+
+#endif // GIZMOS_H

@@ -15,20 +15,21 @@ Renderer::Renderer(
 }
 
 void Renderer::initialize() {
+    // this is the point cloud shader
     shader = std::make_shared<Shader>(
         f,
-        std::string(SHADER_DIR) + "pc.vert",
-        std::string(SHADER_DIR) + "pc.frag"
+        std::string(SHADER_DIR) + "cloud.vert",
+        std::string(SHADER_DIR) + "cloud.frag"
     );
 
     auto cloud = ModelLoader::load(f, "D:/datasets/boardwalk_in_the_forest_-_point_cloud/scene.gltf");
     // auto cloud = ModelLoader::load(f, "D:/datasets/ClaustroVelezBlanco.ply");
-
     // auto cloud = ModelLoader::load(f, "D:/datasets/ce4c13a6d4fc44318477608e45341e7e.ply");
-    // cloud->transform.rotate(glm::vec3(0.0f, 180.0f, 0.0f));
 
-    cloud->transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
-    if (cloud) scene.addObject(cloud);
+    if (cloud) {
+        cloud->transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
+        scene.addCloud(cloud);
+    }
 
     gizmos.initialize();
 
@@ -54,13 +55,13 @@ void Renderer::render(float delta_time) {
     shader->setMat4("view", view);
     shader->setMat4("proj", proj);
 
-    for (const auto& obj : scene.objects) {
-        if (!obj->point_cloud) continue;
-        glm::mat4 model = obj->transform.getTransformationMatrix();
+    shader->setFloat("pointSize", point_size);
+
+    for (const auto& pc : scene.point_clouds) {
+        glm::mat4 model = pc->transform.getTransformationMatrix();
         shader->setMat4("model", model);
-        shader->setFloat("pointSize", obj->point_cloud->point_size);
-        obj->point_cloud->render();
-        gizmos.drawBoundingBox(obj->point_cloud->bounding_box, model, view, proj, {1.0f, 1.0f, 1.0f, 1.0f});
+        pc->render();
+        gizmos.drawBoundingBox({pc->bb_min, pc->bb_max}, model, view, proj, {1.0f, 1.0f, 1.0f, 1.0f});
     }
 }
 

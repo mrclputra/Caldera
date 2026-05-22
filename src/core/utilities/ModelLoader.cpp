@@ -5,7 +5,9 @@
 #include <assimp/postprocess.h>
 #include <spdlog/spdlog.h>
 
-std::shared_ptr<Object> ModelLoader::load(QOpenGLFunctions_4_5_Core *f, const std::string &path) {
+#include "engine/components/PointCloud.h"
+
+std::shared_ptr<PointCloud> ModelLoader::load(QOpenGLFunctions_4_5_Core* f, const std::string& path) {
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path,
         aiProcess_GenNormals
@@ -54,7 +56,6 @@ std::shared_ptr<Object> ModelLoader::load(QOpenGLFunctions_4_5_Core *f, const st
         }
     }
 
-    // build the object
     if (points.empty()) {
         spdlog::error("loader: no vertices found in {}", path);
         return nullptr;
@@ -68,15 +69,12 @@ std::shared_ptr<Object> ModelLoader::load(QOpenGLFunctions_4_5_Core *f, const st
     glm::vec3 center = (mn + mx) * 0.5f;
     float diagonal = glm::length(mx - mn);
 
-    size_t count = points.size();
-    spdlog::info("loader: {} points | bbox min ({:.2f},{:.2f},{:.2f}) max ({:.2f},{:.2f},{:.2f})",
-        count, mn.x, mn.y, mn.z, mx.x, mx.y, mx.z);
+    spdlog::info("loader: {} points | bbox ({:.2f},{:.2f},{:.2f}) - ({:.2f},{:.2f},{:.2f})",
+        points.size(), mn.x, mn.y, mn.z, mx.x, mx.y, mx.z);
     spdlog::info("loader: center ({:.2f},{:.2f},{:.2f}) | diagonal {:.2f}",
         center.x, center.y, center.z, diagonal);
 
-    auto obj = std::make_shared<Object>(path);
-    obj->point_cloud = std::make_shared<PointCloud>(f, std::move(points));
-    return obj;
+    return std::make_shared<PointCloud>(f, path, std::move(points));
 }
 
 
