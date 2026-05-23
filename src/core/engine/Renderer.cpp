@@ -1,8 +1,9 @@
 #include "Renderer.h"
 #include <Qt>
+#include <algorithm>
 #include <spdlog/spdlog.h>
 
-#include "utilities/ModelLoader.h"
+#include "utilities/Loader.h"
 
 Renderer::Renderer(
     QOpenGLFunctions_4_5_Core* f,
@@ -22,13 +23,15 @@ void Renderer::initialize() {
         std::string(SHADER_DIR) + "cloud.frag"
     );
 
-    auto cloud = ModelLoader::load(f, "D:/datasets/boardwalk_in_the_forest_-_point_cloud/scene.gltf");
+    auto cloud = loadPointCloud(f, "D:/datasets/boardwalk_in_the_forest_-_point_cloud/scene.gltf");
     // auto cloud = ModelLoader::load(f, "D:/datasets/ClaustroVelezBlanco.ply");
     // auto cloud = ModelLoader::load(f, "D:/datasets/ce4c13a6d4fc44318477608e45341e7e.ply");
-
+    // auto cloud = loadPointCloud(f, "D:/datasets/anglefit0/fully_aligned_fullres.ply"); // no rotate needed
     if (cloud) {
         cloud->transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
         scene.addCloud(cloud);
+    } else {
+        spdlog::error("unable to load cloud");
     }
 
     gizmos.initialize();
@@ -82,4 +85,15 @@ void Renderer::onKeyRelease(int key) {
 
 void Renderer::onMouseMove(int dx, int dy) {
     scene.camera.rotate(static_cast<float>(dx), static_cast<float>(dy));
+}
+
+void Renderer::onScroll(int delta) {
+    constexpr float min_speed = 2.0f;
+    constexpr float max_speed = 30.0f;
+    constexpr float step = 1.0f;
+    scene.camera.speed = std::clamp(
+        scene.camera.speed + (delta > 0 ? step : -step),
+        min_speed, max_speed
+    );
+    spdlog::info("camera speed: {:.1f}", scene.camera.speed);
 }

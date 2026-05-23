@@ -7,7 +7,7 @@ out vec4 FragColor;
 
 const vec3 light_dir = normalize(vec3(0.5, 1.0, 0.75));
 const vec3 light_color = vec3(1.0);
-const float ambient = 0.45;
+const float ambient = 0.65;
 
 void main() {
     vec2 c = gl_PointCoord * 2.0 - 1.0;

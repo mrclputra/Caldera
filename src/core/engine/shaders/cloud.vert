@@ -13,6 +13,6 @@ uniform float pointSize;
 void main() {
     vNormal = mat3(transpose(inverse(model))) * aNormal;
     vColor = aColor;
-    gl_PointSize = pointSize;
     gl_Position = proj * view * model * vec4(aPos, 1.0);
+    gl_PointSize = pointSize / gl_Position.w;
 }

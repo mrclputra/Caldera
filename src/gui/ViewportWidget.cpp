@@ -1,7 +1,9 @@
 #include "ViewportWidget.h"
-#include "engine/Renderer.h"
-#include <QKeyEvent>
+
+#include <spdlog/spdlog.h>
 #include <QMouseEvent>
+
+#include "engine/Renderer.h"
 
 ViewportWidget::ViewportWidget(QWidget* parent) : QOpenGLWidget(parent) {
     setMouseTracking(true);
@@ -12,8 +14,14 @@ ViewportWidget::~ViewportWidget() = default;
 
 void ViewportWidget::initializeGL() {
     initializeOpenGLFunctions();
+
+    spdlog::info("GL vendor: {}", reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+    spdlog::info("GL: renderer: {}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+    spdlog::info("GL version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+
     renderer = std::make_unique<Renderer>(this, this->width(), this->height());
     renderer->initialize();
     timer.start();
@@ -34,6 +42,11 @@ void ViewportWidget::paintGL() {
 void ViewportWidget::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
     renderer->resize(w, h);
+}
+
+void ViewportWidget::enterEvent(QEnterEvent* e) {
+    setFocus();
+    QOpenGLWidget::enterEvent(e);
 }
 
 void ViewportWidget::keyPressEvent(QKeyEvent* e) {
@@ -68,4 +81,10 @@ void ViewportWidget::mouseReleaseEvent(QMouseEvent* e) {
     if (e->button() == Qt::RightButton)
         mouse_capture = false;
     QOpenGLWidget::mouseReleaseEvent(e);
+}
+
+void ViewportWidget::wheelEvent(QWheelEvent* e) {
+    if (mouse_capture)
+        renderer->onScroll(e->angleDelta().y());
+    QOpenGLWidget::wheelEvent(e);
 }

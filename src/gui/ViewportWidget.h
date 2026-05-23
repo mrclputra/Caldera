@@ -21,11 +21,13 @@ protected:
     void paintGL() override;
     void resizeGL(int w, int h) override;
     
+    void enterEvent(QEnterEvent* e) override;
     void keyPressEvent(QKeyEvent* e) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
-    void mouseMoveEvent(QMouseEvent * e) override;
-    void mousePressEvent(QMouseEvent * e) override;
-    void mouseReleaseEvent(QMouseEvent * e) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* e) override;
+    void mousePressEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
+    void wheelEvent(QWheelEvent* e) override;
 
 private:
     std::unique_ptr<Renderer> renderer;

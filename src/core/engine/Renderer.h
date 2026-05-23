@@ -18,15 +18,15 @@ public:
     void onKeyPress(int key);
     void onKeyRelease(int key);
     void onMouseMove(int dx, int dy);
+    void onScroll(int delta);
 
 private:
     QOpenGLFunctions_4_5_Core* f;
     Scene scene;
     Gizmos gizmos;
     std::shared_ptr<Shader> shader;
-
     std::set<int> held_keys;
-    float point_size = 5.0f;
+    float point_size = 14.0f;
 
     int width, height;
 };
