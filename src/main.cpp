@@ -3,22 +3,32 @@
 #include <QStyle>
 
 #include "App.h"
+#include "spdlog/sinks/ringbuffer_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+
+std::shared_ptr<spdlog::sinks::ringbuffer_sink_mt> g_ring_sink;
 
 int main(int argc, char* argv[]) {
-	spdlog::set_pattern("[%H:%M:%S - %t] [%^%l%$] %v");
-	spdlog::info("SPDLOG initialized v{}.{}", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR);
+	// configure logger
+	auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+	g_ring_sink = std::make_shared<spdlog::sinks::ringbuffer_sink_mt>(20);
 
-	spdlog::info("Qt version: {}", QT_VERSION_STR);
-	spdlog::info("Platform: {}", QGuiApplication::platformName().toStdString());
+	auto logger = std::make_shared<spdlog::logger>("main", spdlog::sinks_init_list{stdout_sink, g_ring_sink});
+	spdlog::set_default_logger(logger);
+
+	spdlog::set_pattern("[%H:%M:%S] [%^%l%$] [%s:%#] %v");
+	SPDLOG_INFO("spdlog v{}.{}", SPDLOG_VER_MAJOR, SPDLOG_VER_MINOR);
+	SPDLOG_INFO("Qt {}", QT_VERSION_STR);
+	SPDLOG_INFO("Platform: {}", QGuiApplication::platformName().toStdString());
 
 	QApplication::setStyle("Fusion");
-	spdlog::info("Style: {}", qApp->style()->objectName().toStdString());
+	SPDLOG_INFO("Style: {}", qApp->style()->objectName().toStdString());
 
 	QSurfaceFormat fmt;
 	fmt.setVersion(4, 5);
 	fmt.setProfile(QSurfaceFormat::CoreProfile);
 	QSurfaceFormat::setDefaultFormat(fmt);
 
-	App app(argc, argv, 1280, 720, "Caldera");
+	App app(argc, argv, 1600, 900, "Caldera");
 	return app.run();
 }

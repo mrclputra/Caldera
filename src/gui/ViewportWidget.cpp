@@ -1,9 +1,13 @@
 #include "ViewportWidget.h"
 
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/ringbuffer_sink.h>
 #include <QMouseEvent>
+#include <QPainter>
 
 #include "engine/Renderer.h"
+
+extern std::shared_ptr<spdlog::sinks::ringbuffer_sink_mt> g_ring_sink;
 
 ViewportWidget::ViewportWidget(QWidget* parent) : QOpenGLWidget(parent) {
     setMouseTracking(true);
@@ -15,9 +19,9 @@ ViewportWidget::~ViewportWidget() = default;
 void ViewportWidget::initializeGL() {
     initializeOpenGLFunctions();
 
-    spdlog::info("GL vendor: {}", reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-    spdlog::info("GL: renderer: {}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-    spdlog::info("GL version: {}", reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+    SPDLOG_INFO("GL vendor: {}",   reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+    SPDLOG_INFO("GL renderer: {}", reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+    SPDLOG_INFO("GL version: {}",  reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -37,6 +41,27 @@ void ViewportWidget::paintGL() {
     renderer->render(delta_time);
 
     update();
+
+    QPainter painter(this);
+    painter.setFont(QFont("Consolas", 9));
+
+    // diagnostics
+    painter.setPen(QColor(255, 255, 255, 128));
+    painter.drawText(8, 16, QString("speed: %1").arg(renderer->scene.camera.speed, 0, 'f', 1));
+    painter.drawText(8, 30, QString("fps: %1").arg(1.0f / delta_time, 0, 'f', 0));
+
+    // log overlay
+    if (g_ring_sink) {
+        const auto lines = g_ring_sink->last_formatted();
+        constexpr int line_h = 12;
+        int y = height() - 8 - static_cast<int>(lines.size()) * line_h;
+        for (const auto& line : lines) {
+            painter.drawText(8, y, QString::fromStdString(line).trimmed());
+            y += line_h;
+        }
+    }
+
+    painter.end();
 }
 
 void ViewportWidget::resizeGL(int w, int h) {
@@ -84,7 +109,6 @@ void ViewportWidget::mouseReleaseEvent(QMouseEvent* e) {
 }
 
 void ViewportWidget::wheelEvent(QWheelEvent* e) {
-    if (mouse_capture)
-        renderer->onScroll(e->angleDelta().y());
+    renderer->onScroll(e->angleDelta().y());
     QOpenGLWidget::wheelEvent(e);
 }

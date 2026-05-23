@@ -31,7 +31,7 @@ void Renderer::initialize() {
         cloud->transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
         scene.addCloud(cloud);
     } else {
-        spdlog::error("unable to load cloud");
+        SPDLOG_ERROR("unable to load cloud");
     }
 
     gizmos.initialize();
@@ -69,7 +69,6 @@ void Renderer::render(float delta_time) {
 }
 
 void Renderer::resize(int w, int h) {
-    spdlog::info("renderer resize: {},{}", w, h);
     this->width = w;
     this->height = h;
     scene.camera.setViewport(w, h);
@@ -85,6 +84,7 @@ void Renderer::onKeyRelease(int key) {
 
 void Renderer::onMouseMove(int dx, int dy) {
     scene.camera.rotate(static_cast<float>(dx), static_cast<float>(dy));
+    // SPDLOG_INFO("camera {},{}", scene.camera.pitch, scene.camera.yaw);
 }
 
 void Renderer::onScroll(int delta) {
@@ -95,5 +95,4 @@ void Renderer::onScroll(int delta) {
         scene.camera.speed + (delta > 0 ? step : -step),
         min_speed, max_speed
     );
-    spdlog::info("camera speed: {:.1f}", scene.camera.speed);
 }

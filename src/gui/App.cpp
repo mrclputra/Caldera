@@ -9,7 +9,7 @@ App::App(
 ) : argc(argc), qapp(this->argc, argv) {
     window.resize(width, height);
     window.setWindowTitle(title);
-    spdlog::info("Initialized new QT window");
+    SPDLOG_INFO("Initialized new QT window");
 }
 
 int App::run() {

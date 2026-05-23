@@ -20,7 +20,7 @@ PointCloud::~PointCloud() {
 
 void PointCloud::upload() {
     if (VAO) {
-        spdlog::error("VAO already exists, cannot overwrite existing point cloud data.");
+        SPDLOG_ERROR("VAO already exists, cannot overwrite existing point cloud data.");
         return;
     }
 
@@ -52,7 +52,7 @@ void PointCloud::upload() {
 
 void PointCloud::render() {
     if (points.empty()) {
-        spdlog::error("point cloud has no points to render");
+        SPDLOG_ERROR("point cloud has no points to render");
         return;
     }
 

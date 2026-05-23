@@ -5,7 +5,7 @@
 
 Camera::Camera(glm::vec3 position) {
     this->position = position;
-    spdlog::info("camera created; {} * {}", viewport_width, viewport_height);
+    SPDLOG_INFO("camera created; {} * {}", viewport_width, viewport_height);
     update();
 }
 

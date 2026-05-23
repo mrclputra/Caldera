@@ -27,7 +27,7 @@ Shader::Shader(
     if (!ok) {
         GLchar info_log[1024];
         f->glGetProgramInfoLog(program, 1024, nullptr, info_log);
-        spdlog::error("PROGRAM_LINKING_ERROR: {}", info_log);
+        SPDLOG_ERROR("PROGRAM_LINKING_ERROR: {}", info_log);
         f->glDeleteProgram(program);
         f->glDeleteShader(vert);
         f->glDeleteShader(frag);
@@ -88,7 +88,7 @@ GLuint Shader::compile(GLenum type, const std::string& source) const {
     if (!ok) {
         GLchar info_log[1024];
         f->glGetShaderInfoLog(shader, 1024, nullptr, info_log);
-        spdlog::error("SHADER_COMPILE_ERROR: {}", info_log);
+        SPDLOG_ERROR("SHADER_COMPILE_ERROR: {}", info_log);
         f->glDeleteShader(shader);
         return 0;
     }

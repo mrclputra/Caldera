@@ -20,10 +20,11 @@ public:
     void onMouseMove(int dx, int dy);
     void onScroll(int delta);
 
-private:
-    QOpenGLFunctions_4_5_Core* f;
     Scene scene;
     Gizmos gizmos;
+
+private:
+    QOpenGLFunctions_4_5_Core* f;
     std::shared_ptr<Shader> shader;
     std::set<int> held_keys;
     float point_size = 14.0f;

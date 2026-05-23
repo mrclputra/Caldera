@@ -16,7 +16,7 @@ inline std::shared_ptr<PointCloud> loadPointCloud(QOpenGLFunctions_4_5_Core* f, 
     const aiScene* scene = importer.ReadFile(path, aiProcess_GenNormals);
 
     if (!scene || !scene->mRootNode) {
-        spdlog::error("loader: {}", importer.GetErrorString());
+        SPDLOG_ERROR("{}", importer.GetErrorString());
         return nullptr;
     }
 
@@ -40,10 +40,12 @@ inline std::shared_ptr<PointCloud> loadPointCloud(QOpenGLFunctions_4_5_Core* f, 
 
             points.push_back(p);
         }
+
+        SPDLOG_INFO("processed model index {}", m);
     }
 
     if (points.empty()) {
-        spdlog::error("loader: no vertices found in {}", path);
+        SPDLOG_ERROR("no vertices found in {}", path);
         return nullptr;
     }
 
@@ -53,17 +55,16 @@ inline std::shared_ptr<PointCloud> loadPointCloud(QOpenGLFunctions_4_5_Core* f, 
         mx = glm::max(mx, p.position);
     }
 
-    // center point cloud at 0,0
     const glm::vec3 center = (mn + mx) * 0.5f;
     for (auto& p : points) {
         p.position -= center;
-        mn -= center;
-        mx -= center;
     }
+    mn -= center;
+    mx -= center;
 
-    spdlog::info("loaded {} points | bbox ({:.2f},{:.2f},{:.2f}) - ({:.2f},{:.2f},{:.2f})",
+    SPDLOG_INFO("found {} points | bbox ({:.2f},{:.2f},{:.2f}) - ({:.2f},{:.2f},{:.2f})",
         points.size(), mn.x, mn.y, mn.z, mx.x, mx.y, mx.z);
-    spdlog::info("loaded center ({:.2f},{:.2f},{:.2f}) | diagonal {:.2f}",
+    SPDLOG_INFO("found center ({:.2f},{:.2f},{:.2f}) | diagonal {:.2f}",
         ((mn + mx) * 0.5f).x, ((mn + mx) * 0.5f).y, ((mn + mx) * 0.5f).z, glm::length(mx - mn));
 
     return std::make_shared<PointCloud>(f, path, std::move(points));
