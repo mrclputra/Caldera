@@ -35,6 +35,7 @@ void ViewportWidget::paintGL() {
     float delta_time = timer.elapsed() / 1000.0f;
     timer.restart();
 
+    glEnable(GL_DEPTH_TEST);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
