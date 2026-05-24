@@ -1,9 +1,5 @@
 #include "Renderer.h"
-#include <Qt>
-#include <algorithm>
 #include <spdlog/spdlog.h>
-
-#include "utilities/Loader.h"
 
 Renderer::Renderer(
     QOpenGLFunctions_4_5_Core* f,
@@ -16,25 +12,18 @@ Renderer::Renderer(
 }
 
 void Renderer::initialize() {
-    // this is the point cloud shader
-    shader = std::make_shared<Shader>(
+    pc_shader = std::make_shared<Shader>(
         f,
         std::string(SHADER_DIR) + "cloud.vert",
         std::string(SHADER_DIR) + "cloud.frag"
     );
+    gz_shader = std::make_shared<Shader>(
+        f,
+        std::string(SHADER_DIR) + "gizmo.vert",
+        std::string(SHADER_DIR) + "gizmo.frag"
+    );
 
-    auto cloud = loadPointCloud(f, "D:/datasets/boardwalk_in_the_forest_-_point_cloud/scene.gltf");
-    // auto cloud = ModelLoader::load(f, "D:/datasets/ClaustroVelezBlanco.ply");
-    // auto cloud = ModelLoader::load(f, "D:/datasets/ce4c13a6d4fc44318477608e45341e7e.ply");
-    // auto cloud = loadPointCloud(f, "D:/datasets/anglefit0/fully_aligned_fullres.ply"); // no rotate needed
-    if (cloud) {
-        cloud->transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
-        scene.addCloud(cloud);
-    } else {
-        SPDLOG_ERROR("unable to load cloud");
-    }
-
-    gizmos.initialize();
+    gizmos.initialize(gz_shader.get());
 
     f->glEnable(GL_PROGRAM_POINT_SIZE);
 
@@ -43,26 +32,19 @@ void Renderer::initialize() {
 }
 
 void Renderer::render(float delta_time) {
-    if (held_keys.count(Qt::Key_W)) scene.camera.moveForward(delta_time);
-    if (held_keys.count(Qt::Key_S)) scene.camera.moveBackward(delta_time);
-    if (held_keys.count(Qt::Key_A)) scene.camera.moveLeft(delta_time);
-    if (held_keys.count(Qt::Key_D)) scene.camera.moveRight(delta_time);
-    if (held_keys.count(Qt::Key_E)) scene.camera.moveUp(delta_time);
-    if (held_keys.count(Qt::Key_Q)) scene.camera.moveDown(delta_time);
-    scene.camera.update();
+    scene.camera.update(delta_time);
 
     glm::mat4 view = scene.camera.getViewMatrix();
     glm::mat4 proj = scene.camera.getProjectionMatrix();
 
-    shader->bind();
-    shader->setMat4("view", view);
-    shader->setMat4("proj", proj);
-
-    shader->setFloat("pointSize", point_size);
+    pc_shader->bind();
+    pc_shader->setMat4("view", view);
+    pc_shader->setMat4("proj", proj);
+    pc_shader->setFloat("pointSize", point_size);
 
     for (const auto& pc : scene.point_clouds) {
         glm::mat4 model = pc->transform.getTransformationMatrix();
-        shader->setMat4("model", model);
+        pc_shader->setMat4("model", model);
         pc->render();
         gizmos.drawBoundingBox({pc->bb_min, pc->bb_max}, model, view, proj, {1.0f, 1.0f, 1.0f, 1.0f});
     }
@@ -74,25 +56,7 @@ void Renderer::resize(int w, int h) {
     scene.camera.setViewport(w, h);
 }
 
-void Renderer::onKeyPress(int key) {
-    held_keys.insert(key);
-}
-
-void Renderer::onKeyRelease(int key) {
-    held_keys.erase(key);
-}
-
-void Renderer::onMouseMove(int dx, int dy) {
-    scene.camera.rotate(static_cast<float>(dx), static_cast<float>(dy));
-    // SPDLOG_INFO("camera {},{}", scene.camera.pitch, scene.camera.yaw);
-}
-
-void Renderer::onScroll(int delta) {
-    constexpr float min_speed = 2.0f;
-    constexpr float max_speed = 30.0f;
-    constexpr float step = 1.0f;
-    scene.camera.speed = std::clamp(
-        scene.camera.speed + (delta > 0 ? step : -step),
-        min_speed, max_speed
-    );
-}
+void Renderer::onKeyPress(int key) { scene.camera.onKeyPress(key); }
+void Renderer::onKeyRelease(int key) { scene.camera.onKeyRelease(key); }
+void Renderer::onMouseMove(int dx, int dy) { scene.camera.onMouseMove(dx, dy); }
+void Renderer::onScroll(int delta) { scene.camera.onScroll(delta); }

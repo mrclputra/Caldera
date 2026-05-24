@@ -32,8 +32,12 @@ void ViewportWidget::initializeGL() {
 }
 
 void ViewportWidget::paintGL() {
-    float delta_time = timer.elapsed() / 1000.0f;
+    float delta_time = static_cast<float>(timer.nsecsElapsed()) / 1e9f;
     timer.restart();
+
+    delta_samples[delta_index] = delta_time;
+    delta_index = (delta_index + 1) % FPS_SAMPLES;
+    float avg_delta = std::accumulate(delta_samples.begin(), delta_samples.end(), 0.0f) / FPS_SAMPLES;
 
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -49,8 +53,7 @@ void ViewportWidget::paintGL() {
     // diagnostics
     painter.setPen(QColor(255, 255, 255, 128));
     painter.drawText(8, 16, QString("speed: %1").arg(renderer->scene.camera.speed, 0, 'f', 1));
-    painter.drawText(8, 30, QString("fps: %1").arg(1.0f / delta_time, 0, 'f', 0));
-
+    painter.drawText(8, 30, QString("fps: %1").arg(1.0f / avg_delta, 0, 'f', 0));
     // log overlay
     if (g_ring_sink) {
         const auto lines = g_ring_sink->last_formatted();
@@ -70,6 +73,23 @@ void ViewportWidget::resizeGL(int w, int h) {
     renderer->resize(w, h);
 }
 
+
+void ViewportWidget::loadFile(const QString& path) {
+    if (loader_thread.isRunning()) return;
+
+    loader_thread.path = path;
+    connect(&loader_thread, &LoaderThread::done, this, [this](std::vector<PointCloud::Point> points) {
+        makeCurrent();
+        renderer->scene.point_clouds.clear();
+        auto cloud = std::make_shared<PointCloud>(this, "pc", std::move(points));
+        cloud->transform.rotate(glm::vec3(-90.0, 0.0, 0.0));
+        renderer->scene.addCloud(cloud);
+        doneCurrent();
+    }, Qt::SingleShotConnection);
+    loader_thread.start();
+}
+
+
 void ViewportWidget::enterEvent(QEnterEvent* e) {
     setFocus();
     QOpenGLWidget::enterEvent(e);
@@ -87,25 +107,29 @@ void ViewportWidget::keyReleaseEvent(QKeyEvent* e) {
 
 void ViewportWidget::mouseMoveEvent(QMouseEvent* e) {
     if (mouse_capture) {
-        QPoint delta = e->pos() - last_mouse_pos;
-        renderer->onMouseMove(delta.x(), delta.y());
+        QPoint center(width() / 2, height() / 2);
+        QPoint delta = e->pos() - center;
+        if (!delta.isNull()) {
+            renderer->onMouseMove(delta.x(), delta.y());
+            QCursor::setPos(mapToGlobal(center));
+        }
     }
-    last_mouse_pos = e->pos();
     QOpenGLWidget::mouseMoveEvent(e);
 }
 
 void ViewportWidget::mousePressEvent(QMouseEvent* e) {
     if (e->button() == Qt::RightButton) {
-        // capture mouse inputs in the viewport only if right click
         mouse_capture = true;
-        last_mouse_pos = e->pos();
+        QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
     }
+    this->setCursor(Qt::BlankCursor);
     QOpenGLWidget::mousePressEvent(e);
 }
 
 void ViewportWidget::mouseReleaseEvent(QMouseEvent* e) {
     if (e->button() == Qt::RightButton)
         mouse_capture = false;
+    this->setCursor(Qt::ArrowCursor);
     QOpenGLWidget::mouseReleaseEvent(e);
 }
 

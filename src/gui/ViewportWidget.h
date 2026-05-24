@@ -6,6 +6,10 @@
 #include <QElapsedTimer>
 #include <QPoint>
 #include <memory>
+#include <array>
+#include <numeric>
+
+#include "utilities/Loader.h"
 
 class Renderer;
 
@@ -15,6 +19,8 @@ class ViewportWidget : public QOpenGLWidget, public QOpenGLFunctions_4_5_Core
 public:
     explicit ViewportWidget(QWidget* parent = nullptr);
     ~ViewportWidget();
+
+    void loadFile(const QString& path);
 
 protected:
     void initializeGL() override;
@@ -31,9 +37,13 @@ protected:
 
 private:
     std::unique_ptr<Renderer> renderer;
+    LoaderThread loader_thread;
     QElapsedTimer timer;
-    QPoint last_mouse_pos;
     bool mouse_capture = false;
+
+    static constexpr int FPS_SAMPLES = 60;
+    std::array<float, FPS_SAMPLES> delta_samples{};
+    int delta_index = 0;
 };
 
 #endif // VIEWPORTWIDGET_H

@@ -40,6 +40,7 @@ add_library(CalderaCore
         src/core/engine/Gizmos.h
         src/core/engine/components/PointCloud.cpp
         src/core/engine/components/PointCloud.h
+        src/core/utilities/Loader.cpp
         src/core/utilities/Loader.h
 )
 

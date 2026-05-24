@@ -7,12 +7,8 @@ Gizmos::~Gizmos() {
     if (VAO) f->glDeleteVertexArrays(1, &VAO);
 }
 
-void Gizmos::initialize() {
-    shader = std::make_shared<Shader>(
-        f,
-        std::string(SHADER_DIR) + "gizmo.vert",
-        std::string(SHADER_DIR) + "gizmo.frag"
-    );
+void Gizmos::initialize(Shader* s) {
+    shader = s;
 
     f->glGenVertexArrays(1, &VAO);
     f->glGenBuffers(1, &VBO);

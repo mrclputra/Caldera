@@ -17,7 +17,7 @@ public:
     explicit Gizmos(QOpenGLFunctions_4_5_Core* f);
     ~Gizmos();
 
-    void initialize();
+    void initialize(Shader* s);
     void drawBoundingBox(
         const BoundingBox& bb,
         const glm::mat4& model,
@@ -28,7 +28,7 @@ public:
 
 private:
     QOpenGLFunctions_4_5_Core* f;
-    std::shared_ptr<Shader> shader;
+    Shader* shader = nullptr;
     GLuint VAO = 0;
     GLuint VBO = 0;
 };

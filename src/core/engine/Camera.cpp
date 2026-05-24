@@ -1,15 +1,17 @@
 #include "Camera.h"
 
+#include <Qt>
+#include <algorithm>
 #include "glm/gtc/quaternion.hpp"
 #include "spdlog/spdlog.h"
 
 Camera::Camera(glm::vec3 position) {
     this->position = position;
     SPDLOG_INFO("camera created; {} * {}", viewport_width, viewport_height);
-    update();
+    updateVectors();
 }
 
-void Camera::update() {
+void Camera::updateVectors() {
     glm::vec3 v;
     v.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     v.y = sin(glm::radians(pitch));
@@ -17,8 +19,28 @@ void Camera::update() {
 
     // https://www.songho.ca/opengl/gl_camera.html
     front = glm::normalize(v);
-    right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f))); // modify y if we need to implement roll later
+    right = glm::normalize(glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)));
     up = glm::normalize(glm::cross(right, front));
+}
+
+void Camera::update(float delta) {
+    if (held_keys.count(Qt::Key_W)) moveForward(delta);
+    if (held_keys.count(Qt::Key_S)) moveBackward(delta);
+    if (held_keys.count(Qt::Key_A)) moveLeft(delta);
+    if (held_keys.count(Qt::Key_D)) moveRight(delta);
+    if (held_keys.count(Qt::Key_E)) moveUp(delta);
+    if (held_keys.count(Qt::Key_Q)) moveDown(delta);
+    updateVectors();
+}
+
+void Camera::onKeyPress(int key)  { held_keys.insert(key); }
+void Camera::onKeyRelease(int key) { held_keys.erase(key); }
+void Camera::onMouseMove(int dx, int dy) { rotate(static_cast<float>(dx), static_cast<float>(dy)); }
+void Camera::onScroll(int delta) {
+    constexpr float min_speed = 2.0f;
+    constexpr float max_speed = 80.0f;
+    constexpr float step = 2.0f;
+    speed = std::clamp(speed + (delta > 0 ? step : -step), min_speed, max_speed);
 }
 
 glm::mat4 Camera::getViewMatrix() const {
@@ -39,7 +61,7 @@ void Camera::rotate(float x_offset, float y_offset) {
     pitch -= y_offset * sensitivity;
 
     pitch = glm::clamp(pitch, -89.0f, 89.0f);
-    update();
+    updateVectors();
 }
 
 void Camera::moveForward(const float delta) {

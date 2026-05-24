@@ -2,7 +2,6 @@
 #define RENDERER_H
 
 #include <QOpenGLFunctions_4_5_Core>
-#include <set>
 
 #include "Scene.h"
 #include "components/Shader.h"
@@ -25,9 +24,9 @@ public:
 
 private:
     QOpenGLFunctions_4_5_Core* f;
-    std::shared_ptr<Shader> shader;
-    std::set<int> held_keys;
-    float point_size = 14.0f;
+    std::shared_ptr<Shader> pc_shader;
+    std::shared_ptr<Shader> gz_shader;
+    float point_size = 24.0f;
 
     int width, height;
 };
