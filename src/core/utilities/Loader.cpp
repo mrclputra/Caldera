@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <spdlog/spdlog.h>
+#include <glm/gtc/type_ptr.hpp>
 
 std::vector<PointCloud::Point> loadPoints(const std::string& path) {
     Assimp::Importer importer;
@@ -14,16 +15,26 @@ std::vector<PointCloud::Point> loadPoints(const std::string& path) {
         return {};
     }
 
+    // convert assimp root transform to glm and apply to all vertices
+    const aiMatrix4x4& ai_root = scene->mRootNode->mTransformation;
+    glm::mat4 root_transform = glm::transpose(glm::make_mat4(&ai_root.a1));
+    glm::mat3 root_normal = glm::mat3(glm::transpose(glm::inverse(root_transform)));
+
     std::vector<PointCloud::Point> points;
 
     for (unsigned int m = 0; m < scene->mNumMeshes; m++) {
         aiMesh* mesh = scene->mMeshes[m];
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
             PointCloud::Point p{};
-            p.position = { mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z };
+            glm::vec4 pos = root_transform * glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.0f);
+            // glm::vec4 pos = glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1.0f);
+            p.position = glm::vec3(pos);
 
-            if (mesh->HasNormals())
-                p.normal = { mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z };
+            if (mesh->HasNormals()) {
+                glm::vec3 n = root_normal * glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+                // glm::vec3 n = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+                p.normal = glm::normalize(n);
+            }
 
             if (mesh->HasVertexColors(0)) {
                 auto& c = mesh->mColors[0][i];

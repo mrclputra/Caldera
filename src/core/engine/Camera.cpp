@@ -38,8 +38,8 @@ void Camera::onKeyRelease(int key) { held_keys.erase(key); }
 void Camera::onMouseMove(int dx, int dy) { rotate(static_cast<float>(dx), static_cast<float>(dy)); }
 void Camera::onScroll(int delta) {
     constexpr float min_speed = 2.0f;
-    constexpr float max_speed = 80.0f;
-    constexpr float step = 2.0f;
+    constexpr float max_speed = 140.0f;
+    constexpr float step = 4.0f;
     speed = std::clamp(speed + (delta > 0 ? step : -step), min_speed, max_speed);
 }
 

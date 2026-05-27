@@ -82,7 +82,7 @@ void ViewportWidget::loadFile(const QString& path) {
         makeCurrent();
         renderer->scene.point_clouds.clear();
         auto cloud = std::make_shared<PointCloud>(this, "pc", std::move(points));
-        cloud->transform.rotate(glm::vec3(-90.0, 0.0, 0.0));
+        // cloud->transform.rotate(glm::vec3(-90, 0, 0));
         renderer->scene.addCloud(cloud);
         doneCurrent();
     }, Qt::SingleShotConnection);
@@ -107,11 +107,11 @@ void ViewportWidget::keyReleaseEvent(QKeyEvent* e) {
 
 void ViewportWidget::mouseMoveEvent(QMouseEvent* e) {
     if (mouse_capture) {
-        QPoint center(width() / 2, height() / 2);
-        QPoint delta = e->pos() - center;
+        QPoint global = mapToGlobal(e->pos());
+        QPoint delta = global - lock_pos;
         if (!delta.isNull()) {
             renderer->onMouseMove(delta.x(), delta.y());
-            QCursor::setPos(mapToGlobal(center));
+            QCursor::setPos(lock_pos);
         }
     }
     QOpenGLWidget::mouseMoveEvent(e);
@@ -120,7 +120,7 @@ void ViewportWidget::mouseMoveEvent(QMouseEvent* e) {
 void ViewportWidget::mousePressEvent(QMouseEvent* e) {
     if (e->button() == Qt::RightButton) {
         mouse_capture = true;
-        QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+        lock_pos = mapToGlobal(e->pos());
     }
     this->setCursor(Qt::BlankCursor);
     QOpenGLWidget::mousePressEvent(e);

@@ -47,8 +47,8 @@ private:
 
     std::set<int> held_keys;
     glm::vec3 world_up;
-    int viewport_width = 800;
-    int viewport_height = 600;
+    int viewport_width = 1920;
+    int viewport_height = 1080;
 };
 
 #endif // CAMERA_H

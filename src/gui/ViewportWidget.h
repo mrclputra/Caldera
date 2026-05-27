@@ -40,6 +40,7 @@ private:
     LoaderThread loader_thread;
     QElapsedTimer timer;
     bool mouse_capture = false;
+    QPoint lock_pos;
 
     static constexpr int FPS_SAMPLES = 60;
     std::array<float, FPS_SAMPLES> delta_samples{};
