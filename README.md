@@ -1,10 +1,8 @@
 # Caldera
 :))
 
-`pacman -S mingw-w64-clang-x86_64-toolchain mingw-w64-clang-x86_64-gdb`
+`pacman -S mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-ninja mingw-w64-clang-x86_64-qt6-base mingw-w64-clang-x86_64-qt6-tools mingw-w64-clang-x86_64-eigen3 mingw-w64-clang-x86_64-boost mingw-w64-clang-x86_64-flann mingw-w64-clang-x86_64-qhull`
 
-`pacman -S mingw-w64-clang-x86_64-gmp mingw-w64-clang-x86_64-mpfr mingw-w64-clang-x86_64-boost`
+CLion CMake options:
 
-`pacman -S mingw-w64-clang-x86_64-qt6-base`
-
--G Ninja -DCMAKE_PREFIX_PATH=D:/tools/msys64/clang64
+`-G Ninja -DCMAKE_PREFIX_PATH=D:/tools/msys64/clang64`

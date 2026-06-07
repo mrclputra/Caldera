@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <vector>
 
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
 #include "Transform.h"
 
 class PointCloud {

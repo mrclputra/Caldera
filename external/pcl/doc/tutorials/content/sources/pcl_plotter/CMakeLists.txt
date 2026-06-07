@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+project(pcl_plotter)
+find_package(PCL 1.7 REQUIRED COMPONENTS common visualization)
+add_executable(pcl_plotter pcl_plotter_demo.cpp)
+target_link_libraries(pcl_plotter ${PCL_LIBRARIES})

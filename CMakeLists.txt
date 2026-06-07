@@ -4,27 +4,38 @@ project(Caldera LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets OpenGLWidgets)
-qt_standard_project_setup()
-
 if (MSVC)
     add_compile_options(/Zc:__cplusplus /permissive-)
 endif()
 
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets OpenGLWidgets)
+qt_standard_project_setup()
+
 set(SPDLOG_BUILD_COMPILED ON CACHE BOOL "" FORCE)
 add_subdirectory(external/spdlog)
+
 add_subdirectory(external/glm)
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_PLY_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
-add_subdirectory(external/assimp)
+set(WITH_OPENMP       OFF CACHE BOOL   "" FORCE)
+set(WITH_VTK          OFF CACHE BOOL   "" FORCE)
+set(WITH_QT           NO  CACHE STRING "" FORCE)
+set(WITH_SYSTEM_CJSON OFF CACHE BOOL   "" FORCE)
+add_subdirectory(external/pcl)
+target_include_directories(pcl_common SYSTEM INTERFACE
+    ${CMAKE_BINARY_DIR}/external/pcl/include
+    ${CMAKE_SOURCE_DIR}/external/pcl/common/include
+)
+target_compile_options(pcl_common PRIVATE -w)
 
+set(BUILD_SHARED_LIBS                     OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_PLY_IMPORTER             ON  CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_GLTF_IMPORTER            ON  CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS                    OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS             OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL                        OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX           OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/assimp)
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     foreach(target assimp zlibstatic)
         if (TARGET ${target})
@@ -33,89 +44,76 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     endforeach()
 endif()
 
-add_library(CalderaCore
-        STATIC
-        src/core/engine/Renderer.h
-        src/core/engine/Renderer.cpp
-        src/core/engine/components/Shader.h
-        src/core/engine/components/Shader.cpp
-        src/core/engine/Scene.cpp
-        src/core/engine/Scene.h
-        src/core/engine/Camera.cpp
-        src/core/engine/Camera.h
-        src/core/engine/Gizmos.cpp
-        src/core/engine/Gizmos.h
-        src/core/engine/components/PointCloud.cpp
-        src/core/engine/components/PointCloud.h
-        src/core/utilities/Loader.cpp
-        src/core/utilities/Loader.h
+add_library(CalderaCore STATIC
+    src/core/engine/Renderer.h
+    src/core/engine/Renderer.cpp
+    src/core/engine/components/Shader.h
+    src/core/engine/components/Shader.cpp
+    src/core/engine/Scene.cpp
+    src/core/engine/Scene.h
+    src/core/engine/Camera.cpp
+    src/core/engine/Camera.h
+    src/core/engine/Gizmos.cpp
+    src/core/engine/Gizmos.h
+    src/core/engine/components/PointCloud.cpp
+    src/core/engine/components/PointCloud.h
+    src/core/utilities/Loader.cpp
+    src/core/utilities/Loader.h
 )
-
-target_link_libraries(CalderaCore
-        PUBLIC
-        spdlog::spdlog
-        Qt::OpenGL
-        glm::glm
-        assimp
+target_link_libraries(CalderaCore PUBLIC
+    spdlog::spdlog
+    Qt::OpenGL
+    glm::glm
+    assimp
+    pcl_common
 )
-target_include_directories(CalderaCore
-        PUBLIC
-        src/core
-        external/stb
-        external/assimp/include
+target_include_directories(CalderaCore PUBLIC
+    src/core
+    external/stb
+    external/assimp/include
 )
 target_compile_definitions(CalderaCore
-        PRIVATE
-        SHADER_DIR="${PROJECT_SOURCE_DIR}/src/core/engine/shaders/"
+    PUBLIC  EIGEN_MAX_ALIGN_BYTES=32
+    PRIVATE SHADER_DIR="${PROJECT_SOURCE_DIR}/src/core/engine/shaders/"
 )
 
-add_library(CalderaGUI
-        STATIC
-        src/gui/App.h
-        src/gui/App.cpp
-        src/gui/MainWindow.h
-        src/gui/MainWindow.cpp
-        src/gui/MainWindow.ui
-        src/gui/ViewportWidget.h
-        src/gui/ViewportWidget.cpp
+add_library(CalderaGUI STATIC
+    src/gui/App.h
+    src/gui/App.cpp
+    src/gui/MainWindow.h
+    src/gui/MainWindow.cpp
+    src/gui/MainWindow.ui
+    src/gui/ViewportWidget.h
+    src/gui/ViewportWidget.cpp
+)
+target_link_libraries(CalderaGUI PUBLIC
+    CalderaCore
+    Qt::Core
+    Qt::Widgets
+    Qt::OpenGLWidgets
+)
+target_include_directories(CalderaGUI PUBLIC
+    src/gui
 )
 
-target_link_libraries(CalderaGUI
-        PUBLIC
-        CalderaCore
-        Qt::Core
-        Qt::Widgets
-        Qt::OpenGLWidgets
+qt_add_executable(${PROJECT_NAME} MACOSX_BUNDLE
+    src/main.cpp
 )
-target_include_directories(CalderaGUI
-        PUBLIC
-        src/gui
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
 )
-
-qt_add_executable(${PROJECT_NAME}
-        MACOSX_BUNDLE
-        src/main.cpp
-)
-
-set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-        WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>
-)
-
-target_link_libraries(${PROJECT_NAME}
-        PRIVATE
-        CalderaGUI
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    CalderaGUI
 )
 
 install(TARGETS ${PROJECT_NAME}
-        BUNDLE DESTINATION .
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
 qt_generate_deploy_app_script(
-        TARGET ${PROJECT_NAME}
-        OUTPUT_SCRIPT deploy_script
-        NO_UNSUPPORTED_PLATFORM_ERROR
+    TARGET ${PROJECT_NAME}
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
 )
 install(SCRIPT ${deploy_script})
