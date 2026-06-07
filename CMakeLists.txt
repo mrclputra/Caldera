@@ -5,26 +5,33 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets OpenGLWidgets)
-
 qt_standard_project_setup()
 
 if (MSVC)
     add_compile_options(/Zc:__cplusplus /permissive-)
-endif ()
+endif()
 
 set(SPDLOG_BUILD_COMPILED ON CACHE BOOL "" FORCE)
 add_subdirectory(external/spdlog)
 add_subdirectory(external/glm)
 
-set(BUILD_SHARED_LIBS                       OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT   OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_PLY_IMPORTER               ON  CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_GLTF_IMPORTER              ON  CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_TESTS                      OFF CACHE BOOL "" FORCE)
-set(ASSIMP_BUILD_ASSIMP_TOOLS               OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INSTALL                          OFF CACHE BOOL "" FORCE)
-set(ASSIMP_INJECT_DEBUG_POSTFIX             OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_PLY_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INJECT_DEBUG_POSTFIX OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/assimp)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    foreach(target assimp zlibstatic)
+        if (TARGET ${target})
+            target_compile_options(${target} PRIVATE -Wno-unsafe-buffer-usage)
+        endif()
+    endforeach()
+endif()
 
 add_library(CalderaCore
         STATIC
