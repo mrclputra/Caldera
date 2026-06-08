@@ -13,8 +13,12 @@ qt_standard_project_setup()
 
 set(SPDLOG_BUILD_COMPILED ON CACHE BOOL "" FORCE)
 add_subdirectory(external/spdlog)
-
 add_subdirectory(external/glm)
+
+# fix for LLVM clang on windows: prevent PCL from looking for -latomic
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND WIN32)
+    set(LIBATOMIC_NOT_NEEDED TRUE CACHE BOOL "Forced for Clang on Windows" FORCE)
+endif()
 
 set(WITH_OPENMP       OFF CACHE BOOL   "" FORCE)
 set(WITH_VTK          OFF CACHE BOOL   "" FORCE)
