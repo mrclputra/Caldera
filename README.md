@@ -17,3 +17,5 @@ CLion CMake options:
 
 `-G Ninja -DCMAKE_PREFIX_PATH=D:/tools/msys64/clang64`
 or where-ever your llvm compiler is
+
+implement SLAM interface? todo: read on opencv documentation
